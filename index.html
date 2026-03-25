@@ -6,6 +6,49 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Formula Mgr">
 <meta name="theme-color" content="#0369a1">
+<link rel="apple-touch-icon" id="app-icon-link">
+<script>
+// Generate SVG icon as data URI and set as apple-touch-icon
+(function(){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="110" fill="#0369a1"/>
+    <rect x="40" y="40" width="432" height="432" rx="80" fill="#075985"/>
+    <!-- flask body -->
+    <path d="M190 140 h132 v100 l80 160 a20 20 0 0 1-18 28 H128 a20 20 0 0 1-18-28 l80-160 Z" fill="none" stroke="white" stroke-width="18" stroke-linejoin="round"/>
+    <!-- flask neck top bar -->
+    <rect x="178" y="128" width="156" height="22" rx="11" fill="white"/>
+    <!-- liquid inside -->
+    <path d="M175 340 l40-80 h82 l40 80 a20 20 0 0 1-18 26 H193 a20 20 0 0 1-18-26Z" fill="#38bdf8" opacity=".8"/>
+    <!-- bubbles -->
+    <circle cx="224" cy="330" r="12" fill="white" opacity=".7"/>
+    <circle cx="270" cy="310" r="8" fill="white" opacity=".5"/>
+    <circle cx="300" cy="335" r="6" fill="white" opacity=".6"/>
+    <!-- atom orbit lines -->
+    <ellipse cx="390" cy="112" rx="38" ry="16" fill="none" stroke="#38bdf8" stroke-width="5" transform="rotate(-40,390,112)" opacity=".7"/>
+    <ellipse cx="390" cy="112" rx="38" ry="16" fill="none" stroke="#38bdf8" stroke-width="5" transform="rotate(40,390,112)" opacity=".7"/>
+    <circle cx="390" cy="112" r="10" fill="#38bdf8" opacity=".9"/>
+  </svg>`;
+  const b64 = 'data:image/svg+xml;base64,' + btoa(svg);
+  document.getElementById('app-icon-link').href = b64;
+  // also set favicon
+  const link = document.createElement('link'); link.rel='icon'; link.href=b64;
+  document.head.appendChild(link);
+  // inject web app manifest for Add to Home Screen
+  const manifest = {
+    name: 'Formula Manager',
+    short_name: 'Formula Mgr',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#0369a1',
+    theme_color: '#0369a1',
+    icons: [{ src: b64, sizes: '512x512', type: 'image/svg+xml' }]
+  };
+  const mlink = document.createElement('link');
+  mlink.rel = 'manifest';
+  mlink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+  document.head.appendChild(mlink);
+})();
+</script>
 <title>Formula Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -474,14 +517,14 @@ textarea.finput{resize:vertical;min-height:65px}
 <script>
 // ===== CATEGORIES =====
 const CATS = [
-  {id:'PRIMER',   lbl:'Primer',   e:'🎨', c:'#0369a1', bg:'#e0f2fe'},
-  {id:'PLASTER',  lbl:'Plaster',  e:'🧱', c:'#92400e', bg:'#fef3c7'},
-  {id:'PAINT',    lbl:'Paint',    e:'🖌️', c:'#7c3aed', bg:'#f3e8ff'},
-  {id:'ADHESIVE', lbl:'Adhesive', e:'🔗', c:'#065f46', bg:'#d1fae5'},
-  {id:'SEALER',   lbl:'Sealer',   e:'🛡️', c:'#1e40af', bg:'#dbeafe'},
-  {id:'TEXTURE',  lbl:'Texture',  e:'✨', c:'#9d174d', bg:'#fce7f3'},
-  {id:'COATING',  lbl:'Coating',  e:'💧', c:'#0f766e', bg:'#ccfbf1'},
-  {id:'OTHER',    lbl:'Other',    e:'🔬', c:'#374151', bg:'#f3f4f6'},
+  {id:'PRIMER',   lbl:'Primer',   e:'⚗️',  c:'#0369a1', bg:'#e0f2fe'},
+  {id:'PLASTER',  lbl:'Plaster',  e:'🧱',  c:'#92400e', bg:'#fef3c7'},
+  {id:'PAINT',    lbl:'Paint',    e:'🎨',  c:'#7c3aed', bg:'#f3e8ff'},
+  {id:'ADHESIVE', lbl:'Adhesive', e:'🧪',  c:'#065f46', bg:'#d1fae5'},
+  {id:'SEALER',   lbl:'Sealer',   e:'🔬',  c:'#1e40af', bg:'#dbeafe'},
+  {id:'TEXTURE',  lbl:'Texture',  e:'✨',  c:'#9d174d', bg:'#fce7f3'},
+  {id:'COATING',  lbl:'Coating',  e:'💧',  c:'#0f766e', bg:'#ccfbf1'},
+  {id:'OTHER',    lbl:'Other',    e:'⚛️',  c:'#374151', bg:'#f3f4f6'},
 ];
 const cat = id => CATS.find(c=>c.id===id) || CATS[7];
 
@@ -533,7 +576,7 @@ function renderList(data) {
     const c = cat(f.cat||'OTHER');
     const ic = (f.parts||[]).reduce((s,p) => s+(p.ings||[]).length, 0);
     return `<div class="item" onclick="showDetail('${f.id}')">
-      <div class="item-icon">${c.e}</div>
+      <div class="item-icon" style="background:${c.bg};border:2px solid ${c.c}22;font-size:20px">${c.e}</div>
       <div class="item-info">
         <div class="item-name">${f.name}</div>
         <div class="item-meta">${f.baseVol} Kg · ${ic} ingredient${ic!==1?'s':''}</div>
@@ -574,12 +617,14 @@ function showDetail(id) {
   const profit   = parseFloat(f.profit)   || 0;
   const matPerUnit = (packSize > 0 && dv > 0) ? (tot / dv) * packSize : 0;
   const totalUnitCost = matPerUnit + packCost;
-  const sellingPrice = (profit > 0 && totalUnitCost > 0) ? totalUnitCost / (1 - profit / 100) : 0;
+  // markup on cost: selling = cost × (1 + profit%/100)
+  const sellingPrice = (profit > 0 && totalUnitCost > 0) ? totalUnitCost * (1 + profit / 100) : 0;
+  const profitAmt = sellingPrice - totalUnitCost;
   document.getElementById('dcontent').innerHTML = `
     <div class="fhdr">
       <div class="fhdr-title">${f.name}</div>
       ${f.desc?`<div class="fhdr-sub">${f.desc}</div>`:''}
-      <div class="fhdr-cat">${c.e} ${c.lbl}</div>
+      <div class="fhdr-cat" style="background:rgba(255,255,255,.18);color:white">${c.e} ${c.lbl}</div>
       <div class="vol-row">
         <span class="vol-lbl">Total Volume</span>
         <div class="vol-ctrl">
@@ -612,7 +657,7 @@ function showDetail(id) {
         <span class="tval" style="color:#c2410c;font-size:16px">${totalUnitCost.toFixed(2)} AED</span>
       </div>`:''}
       ${sellingPrice>0?`<div class="trow" style="background:#f0fdf4;border-top:2px solid #86efac">
-        <div><span class="tlabel" style="font-weight:700;color:#15803d;font-size:13px">🏷️ Selling Price / Unit</span><br><span style="font-size:10px;color:#4ade80">${profit}% margin · ${(sellingPrice-totalUnitCost).toFixed(2)} AED profit</span></div>
+        <div><span class="tlabel" style="font-weight:700;color:#15803d;font-size:13px">🏷️ Selling Price / Unit</span><br><span style="font-size:10px;color:#16a34a">${profit}% markup · profit = ${profitAmt.toFixed(2)} AED</span></div>
         <span class="tval" style="color:#15803d;font-size:18px">${sellingPrice.toFixed(2)} AED</span>
       </div>`:''}
     </div>
@@ -628,7 +673,8 @@ function showDetail(id) {
     <div class="arow">
       <button class="abtn btn-card" onclick="openRC('${id}')">🃏 Formula Card</button>
       <button class="abtn btn-edit" onclick="openEdit()">✏️ Edit</button>
-      <button class="abtn btn-del" onclick="delFormula('${id}')">🗑</button>
+      <button class="abtn" onclick="dupFormula('${id}')" style="background:#f0f9ff;color:var(--teal-dark);border:2px solid var(--teal);flex:0 0 auto;padding:12px 13px" title="Duplicate">⧉</button>
+      <button class="abtn btn-del" onclick="delFormula('${id}')" style="flex:0 0 auto;padding:12px 13px">🗑</button>
     </div>`;
   document.getElementById('vlist').classList.remove('active');
   document.getElementById('vdetail').classList.add('active');
@@ -646,6 +692,18 @@ function delFormula(id) {
   if (!confirm('Delete this formula?')) return;
   formulas = formulas.filter(f => f.id!==id);
   save(); goList();
+}
+function dupFormula(id) {
+  const f = formulas.find(x=>x.id===id); if (!f) return;
+  const copy = JSON.parse(JSON.stringify(f));
+  copy.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+  copy.name = 'COPY OF ' + f.name;
+  delete copy.dispVol;
+  formulas.unshift(copy);
+  save();
+  toast('⧉ Formula duplicated!');
+  goList();
+  setTimeout(() => showDetail(copy.id), 100);
 }
 
 // ===== WHATSAPP =====
@@ -929,14 +987,17 @@ function calcUnitCost() {
   const cpk = totalVol > 0 ? matTot / totalVol : 0;
   const matPerUnit = cpk * packSize;
   const totalUnit = matPerUnit + packCost;
-  const sellingPrice = profit > 0 ? totalUnit / (1 - profit / 100) : 0;
+  // Selling price = Total Unit Cost × (1 + profit% / 100)
+  // e.g. cost=100, profit=30% → selling=130, profit amount=30
+  const sellingPrice = profit > 0 ? totalUnit * (1 + profit / 100) : 0;
+  const profitAmt = sellingPrice - totalUnit;
   document.getElementById('uc-mat').textContent = matPerUnit.toFixed(2) + ' AED';
   document.getElementById('uc-pack').textContent = packCost.toFixed(2) + ' AED';
   document.getElementById('uc-total').textContent = totalUnit.toFixed(2) + ' AED';
   const sw = document.getElementById('uc-selling-wrap');
   if (profit > 0 && totalUnit > 0) {
     document.getElementById('uc-selling').textContent = sellingPrice.toFixed(2) + ' AED';
-    document.getElementById('uc-profit-lbl').textContent = `${profit}% margin · ${(sellingPrice - totalUnit).toFixed(2)} AED profit`;
+    document.getElementById('uc-profit-lbl').textContent = `${profit}% markup · profit = ${profitAmt.toFixed(2)} AED`;
     sw.style.display = 'block';
   } else { sw.style.display = 'none'; }
   display.style.display = 'block';
